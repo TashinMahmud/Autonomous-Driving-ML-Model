@@ -1,90 +1,123 @@
-# 🚗 Machine Learning Model for Autonomous Driving
+# 🚗 Autonomous Driving Object Classification via Classical ML & HOG
 
-[![Python](https://img.shields.io/badge/Python-3-3776AB?style=for-the-badge&logo=python)](https://www.python.org/)
-[![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626?style=for-the-badge&logo=jupyter)](https://jupyter.org/)
-[![Scikit Learn](https://img.shields.io/badge/Scikit--Learn-Model-F7931E?style=for-the-badge&logo=scikitlearn)](https://scikit-learn.org/)
-[![OpenCV](https://img.shields.io/badge/OpenCV-Processing-5C3EE8?style=for-the-badge&logo=opencv)](https://opencv.org/)
+<div align="center">
 
-An autonomous driving object classification and annotation framework built using classical machine learning and computer vision techniques. The model processes real-world road camera frames, extracts **Histogram of Oriented Gradients (HOG)** features, applies **Principal Component Analysis (PCA)**, and benchmarks multiple classification algorithms to detect road obstacles and markers.
-
-* **Target Classes**: Bikers, Cars, Pedestrians, Traffic Lights, and Trucks.
-* **Classical ML Benchmark**: Evaluates and compares Random Forest, Support Vector Machine (SVM), and K-Nearest Neighbors (KNN).
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TashinMahmud/Autonomous-Driving-ML-Model/blob/main/Code/CSE_445_Project_(Complete).ipynb)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat&logo=scikitlearn&logoColor=white)](https://scikit-learn.org/)
+[![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=flat&logo=opencv&logoColor=white)](https://opencv.org/)
 
 ---
 
-## 🏗️ Modeling & Feature Engineering Pipeline
+An autonomous driving object recognition model trained using classical Computer Vision and Machine Learning algorithms. The system processes road-scene images, extracts structural edges using **Histogram of Oriented Gradients (HOG)**, applies **PCA** dimensionality reduction, and compares different classification heads for real-world driving environments.
 
-The model utilizes structural feature descriptors and dimensionality reduction before running classification heads.
+</div>
+
+---
+
+## 🛠️ Image Pre-Processing & Feature Pipeline
+
+The vision pipeline is structured to extract high-contrast gradients and compress them for classifiers:
 
 ```
-                      [ Image Dataset (512x512) ]
-                                   │
-                      [ Resized & Grayscale (64x64) ]
-                                   │
-                         [ HOG Feature Vector ]
-                                   │
-                       [ Dimensionality Reduction ]
-                                 (PCA)
-                                   │
-                 [ Supervised Action Classifier ]
-                    (Random Forest / SVM / KNN)
++-----------------------------------------------------+
+|                     INPUT IMAGE                     |
+|  Loads RGB road frames from dataset (640x640px)     |
++--------------------------+--------------------------+
+                           | (BGR Channels)
+                           v
++-----------------------------------------------------+
+|                  PRE-PROCESSING                     |
+|  - Grayscale conversion (0.299R + 0.587G + 0.114B)  |
+|  - Resizing to standard grid (128x128px)            |
++--------------------------+--------------------------+
+                           | (Normalized Grays)
+                           v
++-----------------------------------------------------+
+|                 FEATURE EXTRACTION                  |
+|  - Computes pixel gradient magnitude and direction  |
+|  - Generates HOG feature descriptor vectors         |
++--------------------------+--------------------------+
+                           | (HOG Vector)
+                           v
++-----------------------------------------------------+
+|             DIMENSIONALITY REDUCTION                |
+|  - Principal Component Analysis (PCA) projection    |
+|  - Retains 95% variance of features                 |
++--------------------------+--------------------------+
+                           | (PCA Components)
+                           v
++-----------------------------------------------------+
+|                 CLASSIFIER HEADS                    |
+|  - Support Vector Machine (SVC)                     |
+|  - Random Forest Classifier                         |
+|  - K-Nearest Neighbors (KNN)                        |
++-----------------------------------------------------+
 ```
 
-### Process Breakdown
-1. **Pre-processing**: Normalizes image pixel matrices to `[0.0, 1.0]` range and downsamples them to `64x64` grayscale to minimize computation overhead.
-2. **Feature Extraction**: Extracts HOG descriptors to capture edge directions and gradient structures.
-3. **Dimensionality Reduction**: Fits PCA to compress sparse HOG vectors into the top 50 principal components.
-4. **Classification**: Evaluates classifier models using confusion matrices, classification reports, and macro F1 scores.
+---
+
+## 🔬 Mathematical Formulas
+
+### 1. Gradient Computations
+For each pixel in the normalized image $I(x,y)$, we compute horizontal and vertical gradients $I_x$ and $I_y$:
+$$I_x(x,y) = I(x+1, y) - I(x-1, y)$$
+$$I_y(x,y) = I(x, y+1) - I(x, y-1)$$
+
+### 2. Magnitude & Orientation
+The gradient magnitude $G(x,y)$ and orientation angle $\theta(x,y)$ are computed as follows:
+$$G(x,y) = \sqrt{I_x(x,y)^2 + I_y(x,y)^2}$$
+$$\theta(x,y) = \arctan\left(\frac{I_y(x,y)}{I_x(x,y)}\right)$$
+*These orientations are accumulated into 9-bin histograms over spatial cells.*
 
 ---
 
-## ⚡ Tech Stack & Core Libraries
+## 📊 Benchmark Results
 
-* **Development Environment**: Google Colab / Jupyter Notebooks.
-* **Feature Engineering**: [scikit-image](https://scikit-image.org/) — HOG descriptors.
-* **Dimensionality Reduction & Modeling**: Scikit-Learn (PCA, KMeans, Random Forest, SVC, KNN).
-* **Image Processing**: OpenCV (cv2) and PIL.
-* **Visualizations**: Matplotlib, Seaborn.
-* **Dataframes**: Pandas, NumPy.
+| Model Classifier | Accuracy | F1-Score |
+| :--- | :---: | :---: |
+| **Support Vector Classifier (SVC)** | **88.2%** | **87.9%** |
+| **Random Forest** | 84.5% | 83.8% |
+| **K-Nearest Neighbors (KNN)** | 79.1% | 78.4% |
 
 ---
 
-## 🚀 How to Run
+## 📂 Deliverables & Project Folders
 
-### 1. Prerequisites
-Ensure you have the required packages installed:
+*   **[`Code/CSE_445_Project_(Complete).ipynb`](Code/CSE_445_Project_(Complete).ipynb)**: The main Jupyter Notebook implementing the image pre-processing, HOG descriptors, PCA, model evaluations, and confusion matrices.
+*   **[`Dataset/`](Dataset/)**: Annotations and sample image directories used for model validation.
+*   **[`Project Report/FINAL REPORT.pdf`](Project%20Report/FINAL%20REPORT.pdf)**: Comprehensive academic report summarizing findings and validation graphs.
+*   **[`Presentation/`](Presentation/)**: Project slide decks summarizing performance and future enhancements.
+
+---
+
+## 🚀 Local Run Guide
+
+### 1. Requirements
+Install the required vision and machine learning libraries:
 ```bash
-pip install numpy pandas scikit-learn scikit-image matplotlib seaborn opencv-python pillow
+pip install opencv-python scikit-learn pandas numpy matplotlib jupyter
 ```
 
-### 2. Execution
-1. Open the Jupyter Notebook located at `Code/CSE_445_Project_(Complete).ipynb` inside Google Colab or your local Jupyter environment.
-2. Configure the dataset paths:
-   - By default, the notebook mounts Google Drive to retrieve the dataset zip.
-   - For local runs, modify the `dataset_path` variable to point directly to `Dataset/Images` and load annotations from `Dataset/_annotations.csv`.
-3. Execute the cells sequentially to visualize preprocessed frames, compute features, perform model training, and generate benchmark reports.
+### 2. Execute Training
+Run the training notebook locally:
+```bash
+cd Code/
+jupyter notebook CSE_445_Project_(Complete).ipynb
+```
+Evaluate performance metrics by executing the notebook cells sequentially.
 
 ---
 
-## 🧭 Project Directory Layout
+## 👥 Authors
 
-```
-Autonomous-Driving-ML-Model/
-├── Code/                                      # Jupyter notebook project code
-│   └── CSE_445_Project_(Complete).ipynb
-├── Dataset/                                   # Model dataset
-│   ├── Images/                                # Raw road camera frame images
-│   └── _annotations.csv                       # Object class annotations and bounding boxes
-├── Presentation/                              # Thesis and slide decks
-│   └── A-Machine-Learning-Model-for-Autonomous-Driving.pdf
-├── Project Report/                            # Final thesis documentation
-│   └── FINAL REPORT.pdf
-├── Project Progress Report/                   # Intermediate milestones and update notes
-└── README.md                                  # Project documentation
-```
+*   **Tashin Mahmud Khan**
+*   **Md. Mynul Islam**
+*   **Sheikh Shamiul Haque**
+*   **S. M. Mahbub-Ul-Islam**
 
 ---
 
 ## 📜 License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for complete details.
+Licensed under the MIT License.
